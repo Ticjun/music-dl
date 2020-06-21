@@ -5,6 +5,36 @@ import subprocess
 import re
 from pywinauto import Application
 
+import youtube_dl
+
+
+class MyLogger(object):
+    def debug(self, msg):
+        print(msg)
+
+    def warning(self, msg):
+        print(msg)
+
+    def error(self, msg):
+        print(msg)
+
+
+def my_hook(d):
+    if d['status'] == 'finished':
+        print('Done downloading, now converting ...')
+
+ydl_opts = {
+    'format': 'bestaudio/best',
+    'outtmpl': 'D:/Music/%(title)s.%(ext)s',
+    'postprocessors': [{
+        'key': 'FFmpegExtractAudio',
+        'preferredcodec': 'mp3',
+        'preferredquality': '192',
+    }],
+    'logger': MyLogger(),
+    'progress_hooks': [my_hook],
+}
+
 # determine if application is a script file or frozen exe
 if getattr(sys, 'frozen', False):
     path = os.path.dirname(sys.executable)
@@ -52,11 +82,8 @@ def yt_link(text):
 def dl(urls):
     yt_urls = [url for url in urls if yt_link(url)]
     procs = []
-    for yt_url in yt_urls:
-        procs.append(subprocess.Popen([f"{str(path)}/youtube-dl.exe", "--config-location", str(path), yt_url]))
-
-    for proc in procs:
-        proc.wait()
+    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
+        ydl.download(yt_urls)
 
     print(f"[ytdl] Downloaded {len(yt_urls)} files successfully")
 
