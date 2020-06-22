@@ -1,91 +1,61 @@
-import os
-import sys
+import PySimpleGUI as sg
 
-import subprocess
-import re
-from pywinauto import Application
+import dowloader
+import get
 
-import youtube_dl
+from threading import Thread
 
+dler = dowloader.Downloader()
+dlthread = Thread(target=dler.run, daemon=True)
+dlthread.start()
+def hook(d):
+    dler.hook(d)
+dler.set_hook(hook)
 
-class MyLogger(object):
-    def debug(self, msg):
-        print(msg)
+sg.theme('Dark Blue 3')
+sg.SetOptions(element_padding=(0, 0))
+headings = ['title', '%', 'speed', 'size',
+            'eta', 'status']
+col_widths = [43, 10, 10, 10, 10, 10]
+buttons = [[sg.Button('Add', size=(10, 2))],
+           [sg.Button('Firefox', size=(10, 2))],
+           [sg.Button('Chrome', size=(10, 2))]]
+urls = [[sg.Text('Youtube URLS (supports playlists):')],
+        [sg.Multiline(size=(50, 10), key="URLS"), sg.Column(buttons)]]
+terminal = [[sg.Text('Terminal')],
+            [sg.Output(size=(50, 10))]]
+layout = [[sg.Text('Output Folder :'), sg.Input(key="DIR", enable_events=True, default_text=dler.output_path),
+           sg.FileBrowse(), sg.Text('(without file name)')],
+          [sg.Column(urls), sg.Column(terminal)],
+          [sg.Table(values=[], headings=headings, num_rows=10, justification='left', auto_size_columns=False, key='TABLE',
+                    enable_events=False, col_widths=col_widths, row_height=22)]]
 
-    def warning(self, msg):
-        print(msg)
+window = sg.Window('Ytdl', layout)
 
-    def error(self, msg):
-        print(msg)
+def val_table():
+    table = []
+    for dl in dler.downloads:
+        values = [dl.title, dl.percent, dl.speed, dl.size,
+                  dl.eta, dl.status]
+        table.append(values)
+    return table
 
-
-def my_hook(d):
-    if d['status'] == 'finished':
-        print('Done downloading, now converting ...')
-
-ydl_opts = {
-    'format': 'bestaudio/best',
-    'outtmpl': 'D:/Music/%(title)s.%(ext)s',
-    'postprocessors': [{
-        'key': 'FFmpegExtractAudio',
-        'preferredcodec': 'mp3',
-        'preferredquality': '192',
-    }],
-    'logger': MyLogger(),
-    'progress_hooks': [my_hook],
-}
-
-# determine if application is a script file or frozen exe
-if getattr(sys, 'frozen', False):
-    path = os.path.dirname(sys.executable)
-elif __file__:
-    path = os.path.dirname(__file__)
-else:
-    path = None
-    print("[ytdl] ERROR: Couldn't find path")
-    input()
-    exit(-1)
-
-
-def get_firefox_urls():
-    try:
-        firefox = Application(backend="uia").connect(title_re='.*Firefox.*', found_index=0, timeout=5)
-    except:
-        firefox = None
-        print("[ytdl] ERROR: Firefox is not running")
-        input()
-        exit(-1)
-
-    wd = firefox.windows()[0]
-    tabs = wd.children()
-    urls = []
-    for tab in tabs:
-        try:
-            s = tab.children()[0].children()[0]
-            url = s.legacy_properties()["Value"]
-            urls.append(url)
-        except:
-            continue
-    return urls
-
-
-def yt_link(text):
-    text = str(text)
-    rexp = "(?:youtube\.com|youtu.be)\/" \
-           "(?:[\w\-]+\?v=|embed\/|v\/)?" \
-           "([\w\-]+)" \
-           ".*$"
-    res = re.search(rexp, text)
-    return res
-
-
-def dl(urls):
-    yt_urls = [url for url in urls if yt_link(url)]
-    procs = []
-    with youtube_dl.YoutubeDL(ydl_opts) as ydl:
-        ydl.download(yt_urls)
-
-    print(f"[ytdl] Downloaded {len(yt_urls)} files successfully")
-
-
-dl(get_firefox_urls())
+while True:
+    event, values = window.read(timeout=10)
+    if event == sg.WIN_CLOSED or event == 'Exit':
+        break
+    if event == 'Add':
+        for url in values['URLS'].split():
+            thread = Thread(target=dler.add, args=(url,), daemon=True)
+            thread.start()
+        window['URLS'].update("")
+    if event == 'Firefox':
+        for url in get.firefox_urls():
+            thread = Thread(target=dler.add, args=(url,), daemon=True)
+            thread.start()
+    if event == 'DIR':
+        dler.output(values["DIR"])
+    window['TABLE'].update(val_table())
+    window.refresh()
+dler.close()
+window.close()

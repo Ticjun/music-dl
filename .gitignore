@@ -1,4 +1,7 @@
 **idea
 **__pycache__
+**build
+**dist
 
-/ytdl.spec
+output.txt
+ytdl.spec
