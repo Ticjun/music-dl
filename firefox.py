@@ -7,7 +7,7 @@ def yt_link(text):
     res = re.search(rexp, text)
     return res
 
-def firefox_urls():
+def urls():
     try:
         firefox = Application(backend="uia").connect(title_re='.*Firefox.*', found_index=0, timeout=5)
     except:

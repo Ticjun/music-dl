@@ -1,61 +1,50 @@
-import PySimpleGUI as sg
+import sys
+from PySide2.QtWidgets import QApplication, QMainWindow, QTableWidget, QTableWidgetItem, QFileDialog
+from PySide2.QtCore import QThread
+from main_window import Ui_MainWindow
 
-import dowloader
-import get
-
+from downloader import Downloader
 from threading import Thread
 
-dler = dowloader.Downloader()
-dlthread = Thread(target=dler.run, daemon=True)
-dlthread.start()
-def hook(d):
-    dler.hook(d)
-dler.set_hook(hook)
 
-sg.theme('Dark Blue 3')
-sg.SetOptions(element_padding=(0, 0))
-headings = ['title', '%', 'speed', 'size',
-            'eta', 'status']
-col_widths = [43, 10, 10, 10, 10, 10]
-buttons = [[sg.Button('Add', size=(10, 2))],
-           [sg.Button('Firefox', size=(10, 2))],
-           [sg.Button('Chrome', size=(10, 2))]]
-urls = [[sg.Text('Youtube URLS (supports playlists):')],
-        [sg.Multiline(size=(50, 10), key="URLS"), sg.Column(buttons)]]
-terminal = [[sg.Text('Terminal')],
-            [sg.Output(size=(50, 10))]]
-layout = [[sg.Text('Output Folder :'), sg.Input(key="DIR", enable_events=True, default_text=dler.output_path),
-           sg.FileBrowse(), sg.Text('(without file name)')],
-          [sg.Column(urls), sg.Column(terminal)],
-          [sg.Table(values=[], headings=headings, num_rows=10, justification='left', auto_size_columns=False, key='TABLE',
-                    enable_events=False, col_widths=col_widths, row_height=22)]]
+class MainWindow(QMainWindow, Ui_MainWindow):
+    def __init__(self):
+        super().__init__(self)
+        self.setupUi(self)
 
-window = sg.Window('Ytdl', layout)
+        self.dl = Downloader()
+        self.thread = Thread(target=self.dl.run, daemon=True)
+        self.thread.start()
 
-def val_table():
-    table = []
-    for dl in dler.downloads:
-        values = [dl.title, dl.percent, dl.speed, dl.size,
-                  dl.eta, dl.status]
-        table.append(values)
-    return table
+        self.lineEdit_file_path.setText(self.dl.output_path)
+        self.lineEdit_file_path.textEdited.connect(self.dl.output)
+        self.firefox_button.clicked.connect(self.dl.from_firefox)
+        self.firefox_button.clicked.connect(self.dl.from_chrome)
 
-while True:
-    event, values = window.read(timeout=10)
-    if event == sg.WIN_CLOSED or event == 'Exit':
-        break
-    if event == 'Add':
-        for url in values['URLS'].split():
-            thread = Thread(target=dler.add, args=(url,), daemon=True)
-            thread.start()
-        window['URLS'].update("")
-    if event == 'Firefox':
-        for url in get.firefox_urls():
-            thread = Thread(target=dler.add, args=(url,), daemon=True)
-            thread.start()
-    if event == 'DIR':
-        dler.output(values["DIR"])
-    window['TABLE'].update(val_table())
-    window.refresh()
-dler.close()
-window.close()
+        self.dl.added_row.connect(self.add_row)
+        self.dl.dl_hook.connect(self.update_row)
+        self.dl.removed_row.connect(self.remove_row)
+
+    def update_row(self, i=0):
+        self.table_dl.setItem(i, 0, QTableWidgetItem(self.dl.downloads[i].title))
+        self.table_dl.setItem(i, 1, QTableWidgetItem(self.dl.downloads[i].size))
+        self.table_dl.setItem(i, 2, QTableWidgetItem(self.dl.downloads[i].speed))
+        self.table_dl.setItem(i, 3, QTableWidgetItem(self.dl.downloads[i].eta))
+        self.table_dl.setItem(i, 4, QTableWidgetItem(self.dl.downloads[i].status))
+        self.table_dl.resizeColumnsToContents()
+
+    def add_row(self):
+        i = len(self.dl.downloads)-1
+        self.table_dl.insertRow(i)
+        self.update_row(i)
+
+    def remove_row(self):
+        self.table_dl.removeRow(len(self.dl.downloads))
+
+
+app = QApplication(sys.argv)
+mainWindow = MainWindow()
+mainWindow.show()
+app.exec_()
+
+mainWindow.dl.close()

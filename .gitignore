@@ -5,3 +5,8 @@
 
 output.txt
 ytdl.spec
+/ytdl.exe
+/youtube-dl.exe
+/ffprobe.exe
+/ffplay.exe
+/ffmpeg.exe
