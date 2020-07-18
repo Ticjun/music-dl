@@ -3,6 +3,8 @@ from PySide2.QtCore import QObject, Signal, Slot
 from dataclasses import dataclass
 from typing import Dict
 
+from threading import Thread
+
 import youtube_dl
 import time
 import firefox
@@ -11,12 +13,14 @@ import firefox
 class Download:
     url: str
     info_dict: Dict
+
+    output_path: str = ""
     title: str = ""
     percent: str = ""
     speed: str = ""
     size: str = ""
     left: str = ""
-    eta: str = "..."
+    eta: str = ""
     status: str = ""
 
 class MyLogger(object):
@@ -35,6 +39,7 @@ class Downloader(QObject):
     added_row = Signal()
     dl_hook = Signal()
     removed_row = Signal()
+    terminal_write = Signal(str)
 
     def __init__(self):
         super().__init__()
@@ -47,7 +52,7 @@ class Downloader(QObject):
 
         self.ydl_opts = {
             'format': 'bestaudio/best',
-            'outtmpl': self.output_path + "%(title)s.%(ext)s",
+            'outtmpl': self.output_path + "/%(title)s.%(ext)s",
             'addmetadata': True,
             'nooverwrites': True,
             'no_color': True,
@@ -80,23 +85,31 @@ class Downloader(QObject):
 
             if entries:
                 for entry in entries:
-                    dl = Download(url, entry["url"])
+                    title = entry['title']
+                    dl = Download(f"https://www.youtube.com/watch?v={entry['id']}", entry)
                     dl.title = entry['title']
+                    dl.output_path = f"{self.output_path}/{dl.title}.mp3"
+
                     self.downloads.append(dl)
                     self.added_row.emit()
             else:
                 dl = Download(url, info_dict)
                 dl.title = info_dict['title']
+                dl.output_path = f"{self.output_path}/{dl.title}.mp3"
                 self.downloads.append(dl)
                 self.added_row.emit()
 
     def from_firefox(self):
         urls = firefox.urls()
         print(urls)
-        self.add_to_queue(urls)
+        Thread(target=self.add_to_queue, daemon=True, args=(urls,)).start()
 
     def from_chrome(self):
         pass
+
+    def from_text(self, text):
+        urls = text.split("\n")
+        Thread(target=self.add_to_queue, daemon=True, args=(urls,)).start()
 
     def hook(self, d):
         dl = Downloader.downloads[0]
@@ -112,7 +125,7 @@ class Downloader(QObject):
 
     def output(self, path):
         self.output_path = path
-        self.ydl_opts["outtmpl"] = path + "\%(title)s.%(ext)s"
+        self.ydl_opts["outtmpl"] = path + "/%(title)s.%(ext)s"
 
     def close(self):
         with open("output.txt", "w") as f:

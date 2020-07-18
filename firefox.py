@@ -11,10 +11,10 @@ def urls():
     try:
         firefox = Application(backend="uia").connect(title_re='.*Firefox.*', found_index=0, timeout=5)
     except:
+
         firefox = None
         print("[ytdl] ERROR: Firefox is not running")
         input()
-        exit(-1)
 
     wd = firefox.windows()[0]
     tabs = wd.children()
