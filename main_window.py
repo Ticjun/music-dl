@@ -3,7 +3,7 @@
 # Form implementation generated from reading ui file 'main_window.ui',
 # licensing of 'main_window.ui' applies.
 #
-# Created: Sun Jul 19 02:59:38 2020
+# Created: Sun Jul 19 03:10:23 2020
 #      by: pyside2-uic  running on PySide2 5.13.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -60,6 +60,8 @@ class Ui_MainWindow(object):
         self.table_dl.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustIgnored)
         self.table_dl.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.table_dl.setSelectionMode(QtWidgets.QAbstractItemView.NoSelection)
+        self.table_dl.setSelectionBehavior(QtWidgets.QAbstractItemView.SelectRows)
+        self.table_dl.setGridStyle(QtCore.Qt.SolidLine)
         self.table_dl.setObjectName("table_dl")
         self.table_dl.setColumnCount(6)
         self.table_dl.setRowCount(0)

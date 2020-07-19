@@ -86,7 +86,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             app.setPalette(app.style().standardPalette())
 
     def update_terminal(self, text):
-        if text != "\n":
+        if text != "":
             self.terminal.appendPlainText(text)
 
 
