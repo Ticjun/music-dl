@@ -3,7 +3,7 @@
 # Form implementation generated from reading ui file 'main_window.ui',
 # licensing of 'main_window.ui' applies.
 #
-# Created: Sat Jul 18 15:43:17 2020
+# Created: Sun Jul 19 02:00:21 2020
 #      by: pyside2-uic  running on PySide2 5.13.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -57,7 +57,7 @@ class Ui_MainWindow(object):
         self.table_dl.setSizePolicy(sizePolicy)
         self.table_dl.setAutoFillBackground(False)
         self.table_dl.setFrameShadow(QtWidgets.QFrame.Sunken)
-        self.table_dl.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustToContentsOnFirstShow)
+        self.table_dl.setSizeAdjustPolicy(QtWidgets.QAbstractScrollArea.AdjustIgnored)
         self.table_dl.setEditTriggers(QtWidgets.QAbstractItemView.NoEditTriggers)
         self.table_dl.setObjectName("table_dl")
         self.table_dl.setColumnCount(6)
@@ -117,10 +117,21 @@ class Ui_MainWindow(object):
         self.menubar = QtWidgets.QMenuBar(MainWindow)
         self.menubar.setGeometry(QtCore.QRect(0, 0, 661, 21))
         self.menubar.setObjectName("menubar")
+        self.menuTheme = QtWidgets.QMenu(self.menubar)
+        self.menuTheme.setObjectName("menuTheme")
         MainWindow.setMenuBar(self.menubar)
         self.statusbar = QtWidgets.QStatusBar(MainWindow)
         self.statusbar.setObjectName("statusbar")
         MainWindow.setStatusBar(self.statusbar)
+        self.actionLight_theme = QtWidgets.QAction(MainWindow)
+        self.actionLight_theme.setCheckable(True)
+        self.actionLight_theme.setChecked(True)
+        self.actionLight_theme.setObjectName("actionLight_theme")
+        self.dark_theme = QtWidgets.QAction(MainWindow)
+        self.dark_theme.setCheckable(True)
+        self.dark_theme.setObjectName("dark_theme")
+        self.menuTheme.addAction(self.dark_theme)
+        self.menubar.addAction(self.menuTheme.menuAction())
 
         self.retranslateUi(MainWindow)
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
@@ -141,4 +152,7 @@ class Ui_MainWindow(object):
         self.browse_button.setText(QtWidgets.QApplication.translate("MainWindow", "Browse", None, -1))
         self.label.setText(QtWidgets.QApplication.translate("MainWindow", "Output :", None, -1))
         self.label_2.setText(QtWidgets.QApplication.translate("MainWindow", "Enter URLs :", None, -1))
+        self.menuTheme.setTitle(QtWidgets.QApplication.translate("MainWindow", "Theme", None, -1))
+        self.actionLight_theme.setText(QtWidgets.QApplication.translate("MainWindow", "Light theme", None, -1))
+        self.dark_theme.setText(QtWidgets.QApplication.translate("MainWindow", "Dark theme", None, -1))
 

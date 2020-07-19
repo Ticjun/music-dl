@@ -9,3 +9,4 @@ ytdl.spec
 /ffprobe.exe
 /ffplay.exe
 /ffmpeg.exe
+/platforms/

@@ -7,7 +7,7 @@ from threading import Thread
 
 import youtube_dl
 import time
-import firefox
+import browsers
 
 @dataclass
 class Download:
@@ -21,7 +21,7 @@ class Download:
     size: str = ""
     left: str = ""
     eta: str = ""
-    status: str = ""
+    status: str = "queued"
 
 class MyLogger(object):
     def debug(self, msg):
@@ -100,12 +100,14 @@ class Downloader(QObject):
                 self.added_row.emit()
 
     def from_firefox(self):
-        urls = firefox.urls()
+        urls = browsers.ff_urls()
         print(urls)
         Thread(target=self.add_to_queue, daemon=True, args=(urls,)).start()
 
     def from_chrome(self):
-        pass
+        urls = browsers.ch_urls()
+        print(urls)
+        Thread(target=self.add_to_queue, daemon=True, args=(urls,)).start()
 
     def from_text(self, text):
         urls = text.split("\n")
