@@ -1,9 +1,10 @@
 from PySide2.QtCore import QObject, Signal, Slot
 
+from threading import Thread
+import subprocess
+
 from dataclasses import dataclass
 from typing import Dict
-
-from threading import Thread
 
 import youtube_dl
 import time
@@ -30,6 +31,7 @@ class MyLogger(object):
         print(msg)
     def error(self, msg):
         print(msg)
+
 
 
 class Downloader(QObject):
@@ -71,16 +73,28 @@ class Downloader(QObject):
             if self.downloads:
                 dl = self.downloads[0]
                 with youtube_dl.YoutubeDL(self.ydl_opts) as ydl:
-                    ydl.download([dl.url])
-                self.downloads.pop(0)
-                self.removed_row.emit()
+                    try:
+                        ydl.download([dl.url])
+                        self.downloads.pop(0)
+                        self.removed_row.emit()
+                    except:
+                        print(f"Couldn't download {self.downloads[0].title} retrying at last (check your internet connection)")
+                        self.downloads[0].status = "retry"
+                        self.downloads[0].speed = ""
+                        self.downloads = self.downloads[1:] + [self.downloads[0]]
+                        pass
             else:
                 time.sleep(10)
 
     def add_to_queue(self, urls):
         for url in urls:
             with youtube_dl.YoutubeDL(self.ydl_opts) as ydl:
-                info_dict = ydl.extract_info(url, download=False)
+                try:
+                    info_dict = ydl.extract_info(url, download=False)
+                except:
+                    print(f"Couldn't add {urls} to queue, retrying in 10s (check your internet connection)")
+                    time.sleep(10)
+                    self.add_to_queue(urls)
 
             entries = info_dict.get('entries')
 
