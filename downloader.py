@@ -74,7 +74,7 @@ class Downloader(QObject):
                 self.downloads.pop(0)
                 self.removed_row.emit()
             else:
-                time.sleep(1)
+                time.sleep(10)
 
     def add_to_queue(self, urls):
         for url in urls:

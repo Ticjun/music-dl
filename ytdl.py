@@ -5,6 +5,8 @@ from PySide2.QtGui import QPalette, QColor
 from PySide2.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QFileDialog
 from main_window import Ui_MainWindow
 
+from terminal import Terminal
+
 from downloader import Downloader
 from threading import Thread
 
@@ -21,7 +23,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.dark_theme.triggered.connect(self.dark_mode)
         self.dark = False
 
-
         # Browse
         self.lineEdit_file_path.setText(self.dl.output_path)
         self.lineEdit_file_path.textEdited.connect(self.dl.output)
@@ -31,7 +32,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         # Buttons
         self.firefox_button.clicked.connect(self.dl.from_firefox)
         self.chrome_button.clicked.connect(self.dl.from_chrome)
-        self.text_button.clicked.connect(self.from_text) # Intercept signal to add str
+        self.text_button.clicked.connect(self.from_text)  # Intercept signal to add str
+
+        # Terminal
+        self.term = Terminal()
+        sys.stdout = self.term
+        self.term.event.connect(self.update_terminal)
 
         # Logic
         self.dl.added_row.connect(self.add_row)
@@ -39,12 +45,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.dl.removed_row.connect(self.remove_row)
 
     def update_row(self, i=0):
-        self.table_dl.setItem(i, 0, QTableWidgetItem(self.dl.downloads[i].title))
-        self.table_dl.setItem(i, 1, QTableWidgetItem(self.dl.downloads[i].size))
-        self.table_dl.setItem(i, 2, QTableWidgetItem(self.dl.downloads[i].speed))
-        self.table_dl.setItem(i, 3, QTableWidgetItem(self.dl.downloads[i].eta))
-        self.table_dl.setItem(i, 4, QTableWidgetItem(self.dl.downloads[i].status))
-        self.table_dl.setItem(i, 5, QTableWidgetItem(self.dl.downloads[i].output_path))
+        for i in range(self.table_dl.rowCount()):
+            self.table_dl.setItem(i, 0, QTableWidgetItem(self.dl.downloads[i].title))
+            self.table_dl.setItem(i, 1, QTableWidgetItem(self.dl.downloads[i].size))
+            self.table_dl.setItem(i, 2, QTableWidgetItem(self.dl.downloads[i].speed))
+            self.table_dl.setItem(i, 3, QTableWidgetItem(self.dl.downloads[i].eta))
+            self.table_dl.setItem(i, 4, QTableWidgetItem(self.dl.downloads[i].status))
+            self.table_dl.setItem(i, 5, QTableWidgetItem(self.dl.downloads[i].output_path))
 
     def add_row(self):
         i = self.table_dl.rowCount()
@@ -77,6 +84,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             app.setPalette(dark_palette)
         else:
             app.setPalette(app.style().standardPalette())
+
+    def update_terminal(self, text):
+        if text != "\n":
+            self.terminal.appendPlainText(text)
 
 
 app = QApplication(sys.argv)
