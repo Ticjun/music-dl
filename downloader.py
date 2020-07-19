@@ -56,6 +56,7 @@ class Downloader(QObject):
             'addmetadata': True,
             'nooverwrites': True,
             'no_color': True,
+            'noplaylist': True,
             'postprocessors': [{
                 'key': 'FFmpegExtractAudio',
                 'preferredcodec': 'mp3',
@@ -101,12 +102,10 @@ class Downloader(QObject):
 
     def from_firefox(self):
         urls = browsers.ff_urls()
-        print(urls)
         Thread(target=self.add_to_queue, daemon=True, args=(urls,)).start()
 
     def from_chrome(self):
         urls = browsers.ch_urls()
-        print(urls)
         Thread(target=self.add_to_queue, daemon=True, args=(urls,)).start()
 
     def from_text(self, text):

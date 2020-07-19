@@ -5,4 +5,10 @@ class Terminal(QObject):
 
     def write(self, text):
         text = text.replace("\r", "").replace("\n", "")
-        self.event.emit(str(text))
+        if text == "":
+            return
+        if "[ffmpeg]" in text:
+            text = f"<font color='Blue'>{text}</font>"
+        if "[download]" in text:
+            text = f"<font color='Green'>{text}</font>"
+        self.event.emit(text)

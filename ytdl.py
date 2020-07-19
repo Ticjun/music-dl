@@ -86,8 +86,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             app.setPalette(app.style().standardPalette())
 
     def update_terminal(self, text):
-        if text != "":
-            self.terminal.appendPlainText(text)
+        self.terminal.appendHtml(text)
 
 
 app = QApplication(sys.argv)
@@ -107,10 +106,6 @@ dark_palette.setColor(QPalette.BrightText, Qt.red)
 dark_palette.setColor(QPalette.Link, QColor(42, 130, 218))
 dark_palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
 dark_palette.setColor(QPalette.HighlightedText, Qt.black)
-
-
-
-
 
 mainWindow = MainWindow()
 mainWindow.show()
