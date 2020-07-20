@@ -1,4 +1,4 @@
-from pywinauto import Application, Desktop
+from pywinauto import Application, Desktop, findwindows
 import re
 
 def yt_link(text):
@@ -8,22 +8,21 @@ def yt_link(text):
     return res
 
 def ff_urls():
+    urls = []
     try:
-        firefox = Application(backend="uia").connect(title_re='.*Firefox.*', found_index=0)
+        firefox = Application(backend="uia").connect(title_re='.*Firefox.*')
     except:
-        firefox = None
-        print(r"<font color='Red'>[ytdl] ERROR: Firefox is not running</font>")
-        return []
+        print(r"<font color='Red'>[music-dl] ERROR: Firefox is not running</font>")
+        return urls
     wd = firefox.windows()[0]
     tabs = wd.children()
-    urls = []
     for tab in tabs:
         try:
             s = tab.children()[0].children()[0]
             url = s.legacy_properties()["Value"]
             urls.append(url)
         except:
-            continue
+            pass
     return [url for url in urls if yt_link(url)]
 
 def ch_urls():
@@ -35,6 +34,6 @@ def ch_urls():
         chrome = Application(backend="uia").connect(title_re='.*Chrome.*', found_index=0, timeout=5)
     except:
         chrome = None
-        print("[ytdl] ERROR: Chrome is not running")
+        print("[music-dl] ERROR: Chrome is not running")
         return []
     """
