@@ -7,8 +7,15 @@ class Terminal(QObject):
         text = text.replace("\r", "").replace("\n", "")
         if text == "":
             return
-        if "[ffmpeg]" in text:
+        if "ERROR" in text:
+            text = text.replace("ERROR", "")
+            text = f"<font color='Red'>{text}</font>"
+        elif "[ffmpeg]" in text:
+            text = text.replace("[ffmpeg]", "")
             text = f"<font color='Blue'>{text}</font>"
-        if "[download]" in text:
+        elif "[download]" in text:
+            text = text.replace("[download]", "")
             text = f"<font color='Green'>{text}</font>"
+        elif "[youtube]" in text:
+            text = text.replace("[youtube]", "")
         self.event.emit(text)

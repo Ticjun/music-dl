@@ -1,11 +1,10 @@
 import sys
 
-from PySide2.QtCore import Qt
-from PySide2.QtGui import QPalette, QColor
 from PySide2.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QFileDialog
 from main_window import Ui_MainWindow
 
 from terminal import Terminal
+from dark_theme import dark_theme, light_theme
 
 from downloader import Downloader
 from threading import Thread
@@ -20,7 +19,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         Thread(target=self.dl.run, daemon=True).start()
 
         # Menu
-        self.dark_theme.triggered.connect(self.dark_mode)
+        self.dark_theme.triggered.connect(self.on_dark_theme)
         self.dark = False
 
         # Browse
@@ -78,35 +77,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.dl.from_text(self.text_input.toPlainText())
         self.text_input.clear()
 
-    def dark_mode(self):
+    def on_dark_theme(self):
         self.dark = not self.dark
         if self.dark:
-            app.setPalette(dark_palette)
+            dark_theme(app)
         else:
-            app.setPalette(app.style().standardPalette())
+            light_theme(app)
 
     def update_terminal(self, text):
         self.terminal.appendHtml(text)
 
 
 app = QApplication(sys.argv)
-
 app.setStyle('Fusion')
-dark_palette = QPalette()
-dark_palette.setColor(QPalette.Window, QColor(53, 53, 53))
-dark_palette.setColor(QPalette.WindowText, Qt.white)
-dark_palette.setColor(QPalette.Base, QColor(25, 25, 25))
-dark_palette.setColor(QPalette.AlternateBase, QColor(53, 53, 53))
-dark_palette.setColor(QPalette.ToolTipBase, Qt.white)
-dark_palette.setColor(QPalette.ToolTipText, Qt.white)
-dark_palette.setColor(QPalette.Text, Qt.white)
-dark_palette.setColor(QPalette.Button, QColor(53, 53, 53))
-dark_palette.setColor(QPalette.ButtonText, Qt.white)
-dark_palette.setColor(QPalette.BrightText, Qt.red)
-dark_palette.setColor(QPalette.Link, QColor(42, 130, 218))
-dark_palette.setColor(QPalette.Highlight, QColor(42, 130, 218))
-dark_palette.setColor(QPalette.HighlightedText, Qt.black)
-
 mainWindow = MainWindow()
 mainWindow.show()
 app.exec_()

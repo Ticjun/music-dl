@@ -9,6 +9,8 @@ import youtube_dl
 import time
 import browsers
 
+import re
+
 @dataclass
 class Download:
     url: str
@@ -32,6 +34,16 @@ class MyLogger(object):
     def error(self, msg):
         print(msg)
 
+def yt_link(text):
+    if not text:
+        return None
+    rexp = ("(?:youtube\.com|youtu\.be)\/"
+            "(?:[\w\-]+\?v=|embed\/|v\/)?"
+            "([\w\-]+)")
+    res = re.search(rexp, text)
+    if res is not None:
+        return text
+    return None
 
 class Downloader(QObject):
     downloads = []
@@ -77,29 +89,25 @@ class Downloader(QObject):
                         self.downloads.pop(0)
                         self.removed_row.emit()
                     except:
-                        print(f"Couldn't download {self.downloads[0].title} retrying at last (check your internet connection)")
+                        print(f"Couldn't download {self.downloads[0].title} retrying last (check your internet connection)")
                         self.downloads[0].status = "retry"
                         self.downloads[0].speed = ""
                         self.downloads = self.downloads[1:] + [self.downloads[0]]
-                        pass
             else:
                 time.sleep(10)
 
     def add_to_queue(self, urls):
-        for url in urls:
+        for url in [url for url in urls if yt_link(url)]:
             with youtube_dl.YoutubeDL(self.ydl_opts) as ydl:
                 try:
                     info_dict = ydl.extract_info(url, download=False)
                 except:
-                    print(f"Couldn't add {urls} to queue, retrying in 10s (check your internet connection)")
-                    time.sleep(10)
-                    self.add_to_queue(urls)
+                    print(f"Couldn't add {url} to queue")
 
             entries = info_dict.get('entries')
 
             if entries:
                 for entry in entries:
-                    title = entry['title']
                     dl = Download(f"https://www.youtube.com/watch?v={entry['id']}", entry)
                     dl.title = entry['title']
                     dl.output_path = f"{self.output_path}/{dl.title}.mp3"

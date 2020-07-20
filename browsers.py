@@ -1,11 +1,4 @@
-from pywinauto import Application, Desktop, findwindows
-import re
-
-def yt_link(text):
-    text = str(text)
-    rexp = "(?:youtube\.com|youtu\.be)\/"
-    res = re.search(rexp, text)
-    return res
+from pywinauto import Application
 
 def ff_urls():
     urls = []
@@ -23,7 +16,7 @@ def ff_urls():
             urls.append(url)
         except:
             pass
-    return [url for url in urls if yt_link(url)]
+    return urls
 
 def ch_urls():
     print("Not supported yet")
