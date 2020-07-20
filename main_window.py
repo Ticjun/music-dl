@@ -3,7 +3,7 @@
 # Form implementation generated from reading ui file 'main_window.ui',
 # licensing of 'main_window.ui' applies.
 #
-# Created: Sun Jul 19 03:10:23 2020
+# Created: Mon Jul 20 18:14:09 2020
 #      by: pyside2-uic  running on PySide2 5.13.2
 #
 # WARNING! All changes made in this file will be lost!
@@ -140,7 +140,7 @@ class Ui_MainWindow(object):
         QtCore.QMetaObject.connectSlotsByName(MainWindow)
 
     def retranslateUi(self, MainWindow):
-        MainWindow.setWindowTitle(QtWidgets.QApplication.translate("MainWindow", "Ytdl", None, -1))
+        MainWindow.setWindowTitle(QtWidgets.QApplication.translate("MainWindow", "music-dl", None, -1))
         self.text_button.setText(QtWidgets.QApplication.translate("MainWindow", "From Text", None, -1))
         self.text_button.setShortcut(QtWidgets.QApplication.translate("MainWindow", "Return", None, -1))
         self.firefox_button.setText(QtWidgets.QApplication.translate("MainWindow", "From Firefox", None, -1))
