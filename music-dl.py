@@ -10,6 +10,7 @@ from terminal import Terminal
 from downloader import Downloader
 from threading import Thread
 
+
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()

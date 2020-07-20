@@ -8,16 +8,21 @@
 - [x] Automatically retry failed downloads
 - [x] Playlists support
 - [ ] Chrome imports
+- [ ] Firefox win7 imports
+- [ ] No redownloads of files that would have the same name after being converted to mp3 (not based on youtube-dl already downloaded urls database)
 
 ## About
 
-Gui for command-line tool youtube-dl made with Pyside2
+Gui for command-line tool youtube-dl, using Pyside2
 
-- youtube-dl : https://github.com/ytdl-org/youtube-dl
+Tested for Win 10
+
+Unpack the archive and launch `music-dl.exe`
 
 ## Help needed:
 
 - Chrome imports
+- Firefox win7 imports
 - Prevent ffmpeg and youtube-dl from opening a window on Windows (due to subprocess.Popen). Dirty fix in the subprocess module: 
   ```py
   class STARTUPINFO:
@@ -30,6 +35,9 @@ Gui for command-line tool youtube-dl made with Pyside2
 
 ## Issues
 
-I am currently developping this for my own private use and probably won't add any features I don't need, feel free to request though.
+- Currently in development, won't add unneeded features, feel free to request though.
+- License : No License
 
-Contact me if this project breaks any Copyright or TOS.
+## Credits
+
+- youtube-dl : https://github.com/ytdl-org/youtube-dl

@@ -1,7 +1,6 @@
 from PySide2.QtCore import QObject, Signal, Slot
 
 from threading import Thread
-import subprocess
 
 from dataclasses import dataclass
 from typing import Dict
@@ -24,6 +23,7 @@ class Download:
     eta: str = ""
     status: str = "queued"
 
+
 class MyLogger(object):
     def debug(self, msg):
         print(msg)
@@ -31,7 +31,6 @@ class MyLogger(object):
         print(msg)
     def error(self, msg):
         print(msg)
-
 
 
 class Downloader(QObject):
