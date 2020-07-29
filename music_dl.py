@@ -1,26 +1,30 @@
 import sys
 
-from PySide2.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QFileDialog
-from main_window import Ui_MainWindow
-
-from terminal import Terminal
-from dark_theme import dark_theme, light_theme
-
 from downloader import Downloader
 from threading import Thread
+from config import cfg
 
+from PySide2.QtWidgets import QApplication, QMainWindow, QTableWidgetItem, QFileDialog
+from main_window import Ui_MainWindow
+from terminal import Terminal
+from dark_theme import dark_theme, light_theme
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         super(MainWindow, self).__init__()
         self.setupUi(self)
 
-        self.dl = Downloader()
-        Thread(target=self.dl.run, daemon=True).start()
-
         # Menu
         self.dark_theme.triggered.connect(self.on_dark_theme)
-        self.dark = False
+        self.theme()
+
+        # Terminal
+        self.term = Terminal()
+        sys.stdout = self.term
+        self.term.event.connect(self.update_terminal)
+
+        self.dl = Downloader()
+        Thread(target=self.dl.run, daemon=True).start()
 
         # Browse
         self.lineEdit_file_path.setText(self.dl.output_path)
@@ -32,11 +36,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.firefox_button.clicked.connect(self.dl.from_firefox)
         self.chrome_button.clicked.connect(self.dl.from_chrome)
         self.text_button.clicked.connect(self.from_text)  # Intercept signal to add str
-
-        # Terminal
-        self.term = Terminal()
-        sys.stdout = self.term
-        self.term.event.connect(self.update_terminal)
 
         # Logic
         self.dl.added_row.connect(self.add_row)
@@ -77,16 +76,19 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.dl.from_text(self.text_input.toPlainText())
         self.text_input.clear()
 
-    def on_dark_theme(self):
-        self.dark = not self.dark
-        if self.dark:
+    def theme(self):
+        if cfg.data["dark"]:
             dark_theme(app)
+            self.dark_theme.setChecked(True)
         else:
             light_theme(app)
 
+    def on_dark_theme(self):
+        cfg.data["dark"] = not cfg.data["dark"]
+        self.theme()
+
     def update_terminal(self, text):
         self.terminal.appendHtml(text)
-
 
 app = QApplication(sys.argv)
 app.setStyle('Fusion')
@@ -94,4 +96,4 @@ mainWindow = MainWindow()
 mainWindow.show()
 app.exec_()
 
-mainWindow.dl.close()
+cfg.save_config()

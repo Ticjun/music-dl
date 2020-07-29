@@ -10,6 +10,8 @@ class Terminal(QObject):
         if "ERROR" in text:
             text = text.replace("ERROR", "")
             text = f"<font color='Red'>{text}</font>"
+        if "youtube-dl -U" in text:
+            text = f"Update to latest version"
         elif "[ffmpeg]" in text:
             text = text.replace("[ffmpeg]", "")
             text = f"<font color='Blue'>{text}</font>"

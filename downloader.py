@@ -1,15 +1,14 @@
-from PySide2.QtCore import QObject, Signal, Slot
-
-from threading import Thread
-
-from dataclasses import dataclass
-from typing import Dict
-
 import youtube_dl
 import time
 import browsers
-
 import re
+
+from threading import Thread
+from dataclasses import dataclass
+from typing import Dict
+from PySide2.QtCore import QObject, Signal, Slot
+
+from config import cfg
 
 @dataclass
 class Download:
@@ -56,13 +55,7 @@ class Downloader(QObject):
 
     def __init__(self):
         super().__init__()
-
-        try:
-            with open("output.txt", "r") as f:
-                self.output_path = f.readline()
-        except:
-            self.output_path = "C:/Music/"
-
+        self.output_path = cfg.data["output_path"]
         self.ydl_opts = {
             'format': 'bestaudio/best',
             'outtmpl': self.output_path + "/%(title)s.%(ext)s",
@@ -146,9 +139,5 @@ class Downloader(QObject):
         self.dl_hook.emit()
 
     def output(self, path):
-        self.output_path = path
+        cfg.data["output_path"] = path
         self.ydl_opts["outtmpl"] = path + "/%(title)s.%(ext)s"
-
-    def close(self):
-        with open("output.txt", "w") as f:
-            f.write(self.output_path)

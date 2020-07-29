@@ -3,10 +3,6 @@
 **build
 **dist
 
-output.txt
-music-dl.spec
-/youtube-dl.exe
-/ffprobe.exe
-/ffplay.exe
-/ffmpeg.exe
+music_dl.spec
 /platforms/
+/local.json
